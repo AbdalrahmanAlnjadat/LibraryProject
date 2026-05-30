@@ -1,0 +1,125 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.UserDetailsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "User Details";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">👤 @Model.User.FullName</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <h3 style="margin-bottom: 16px; color: #1a1a2e;">User Information</h3>
+            <p><strong>Email:</strong> @Model.User.Email</p>
+            <p><strong>Role:</strong> @Model.RoleName</p>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 16px; color: #1a1a2e;">Statistics</h3>
+            <p><strong>Total Borrowed:</strong> @Model.TotalBorrowed</p>
+            <p><strong>Active Borrows:</strong> @Model.ActiveBorrows</p>
+            <p><strong>Unpaid Fines:</strong> $@Model.UnpaidFines</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/Librarian/Users" class="btn" style="background:#6b7280;color:white;">← Back to Users</a>
+    </div>
+</div>
+
+<!-- Borrow History -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">📖 Borrow History</h2>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Owned</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.History.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" class="empty">No borrow history</td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.History.Rows)
+            {
+                var isPurchased = false;
+                var unpaidAmount = 0m;
+
+                try
+                {
+                    if (row["IsPurchased"] != DBNull.Value && Convert.ToBoolean(row["IsPurchased"]))
+                    {
+                        isPurchased = true;
+                    }
+                    if (row["UnpaidAmount"] != DBNull.Value)
+                    {
+                        unpaidAmount = Convert.ToDecimal(row["UnpaidAmount"]);
+                    }
+                }
+                catch { }
+
+                <tr>
+                    <td>@row["BookTitle"]</td>
+                    <td>@Convert.ToDateTime(row["BorrowDate"]).ToString("MMM dd, yyyy")</td>
+                    <td>
+                        @if (!isPurchased)
+                        {
+                            @Convert.ToDateTime(row["DueDate"]).ToString("MMM dd, yyyy")
+                        }
+                        else
+                        {
+                            <span style="color:#9ca3af;">N/A</span>
+                        }
+                    </td>
+                    <td>
+                        @if (row["ReturnDate"] != DBNull.Value && !isPurchased)
+                        {
+                            @Convert.ToDateTime(row["ReturnDate"]).ToString("MMM dd, yyyy")
+                        }
+                        else if (isPurchased)
+                        {
+                            <span style="color:#16a34a;">Purchased</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td>
+                        @if (isPurchased)
+                        {
+                            <span class="badge badge-purple">Owned</span>
+                        }
+                        else
+                        {
+                            <span class="badge @(row["Status"].ToString() == "Returned" ? "badge-success" : (row["Status"].ToString() == "Overdue" ? "badge-danger" : "badge-info"))">
+                                @row["Status"]
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @if (isPurchased)
+                        {
+                            <span class="badge badge-success">✓</span>
+                        }
+                    </td>
+                    <td>$@unpaidAmount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

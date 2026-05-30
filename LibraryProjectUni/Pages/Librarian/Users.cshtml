@@ -1,0 +1,131 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.UsersModel
+@using Microsoft.AspNetCore.Http
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Manage Users";
+
+    // SAFE FIX: Read the logged-in user session variable directly inside the view template layout
+    int? loggedInUserId = HttpContext.Session.GetInt32("UserID");
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error" style="padding:15px;background:#fef2f2;border-left:4px solid #ef4444;margin-bottom:20px;">
+        @Model.Error
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success" style="padding:15px;background:#f0fdf4;border-left:4px solid #10b981;margin-bottom:20px;">
+        @Model.Success
+    </div>
+}
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="get">
+        <div style="display: flex; gap: 10px;">
+            <input type="text" name="search" class="form-input" placeholder="Search by name or email..." style="flex: 1;" />
+
+            <select name="roleFilter" class="form-input" style="width: 200px;">
+                <option value="">All Roles</option>
+                <option value="Librarian">Librarians</option>
+                <option value="Member">Members</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="/Librarian/Users" class="btn" style="background:#6b7280;color:white;text-align:center;">Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Registered Library Accounts (@Model.Users.Rows.Count)</h2>
+    </div>
+
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background:#f9fafb; border-bottom: 2px solid #e2e8f0;">
+                <th style="padding:12px; text-align:left;">User ID</th>
+                <th style="padding:12px; text-align:left;">Full Name</th>
+                <th style="padding:12px; text-align:left;">Email</th>
+                <th style="padding:12px; text-align:left;">Phone</th>
+                <th style="padding:12px; text-align:left;">Role</th>
+                <th style="padding:12px; text-align:center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Users.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" style="padding:20px; text-align:center; color:#6b7280;">No system user accounts match your filters.</td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.Users.Rows)
+            {
+                var currentUserId = Convert.ToInt32(row["UserID"]);
+
+                // Defensive column layout tracking mechanics
+                int roleId = 2;
+                if (row.Table.Columns.Contains("RoleID") && row["RoleID"] != DBNull.Value)
+                {
+                    roleId = Convert.ToInt32(row["RoleID"]);
+                }
+                else if (row.Table.Columns.Contains("RoleId") && row["RoleId"] != DBNull.Value)
+                {
+                    roleId = Convert.ToInt32(row["RoleId"]);
+                }
+
+                // FIX: Defensively read Phone to prevent crashes if column is missing from SQL SELECT
+                string phoneValue = "-";
+                if (row.Table.Columns.Contains("Phone") && row["Phone"] != DBNull.Value)
+                {
+                    phoneValue = row["Phone"].ToString();
+                }
+
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding:12px;">#@row["UserID"]</td>
+                    <td style="padding:12px; font-weight:600;">@row["FullName"]</td>
+                    <td style="padding:12px;">@row["Email"]</td>
+                    <td style="padding:12px;">@phoneValue</td>
+                    <td style="padding:12px;">
+                        <span class="badge @(roleId == 1 ? "badge-success" : "badge-info")">
+                            @(roleId == 1 ? "Librarian" : "Member")
+                        </span>
+                    </td>
+                    <td style="padding:12px; text-align:center;">
+                        @if (loggedInUserId.HasValue && currentUserId != loggedInUserId.Value)
+                        {
+                            @if (roleId == 2)
+                            {
+                                <form method="post" asp-page-handler="Promote" style="display:inline;">
+                                    <input type="hidden" name="userId" value="@currentUserId" />
+                                    <button type="submit" class="btn btn-sm" style="background:#10b981; color:white;"
+                                            onclick="return confirm('Promote this user to a system Librarian?')">
+                                        Promote to Admin
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" asp-page-handler="Demote" style="display:inline;">
+                                    <input type="hidden" name="userId" value="@currentUserId" />
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Demote this system Administrator to standard Member status?')">
+                                        Demote to Member
+                                    </button>
+                                </form>
+                            }
+                        }
+                        else
+                        {
+                            <span style="color:#9ca3af; font-size:12px; font-style:italic;">Active Session Account</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

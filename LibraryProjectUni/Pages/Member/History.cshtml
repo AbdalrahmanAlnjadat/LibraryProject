@@ -1,0 +1,129 @@
+﻿@page
+@model LibraryProjectUni.Pages.Member.HistoryModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My History";
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error">@Model.Error</div>
+}
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success">@Model.Success</div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">📋 Borrow History</h2>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.History.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="empty">No borrow history</td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.History.Rows)
+            {
+                var isPurchased = false;
+                var totalPaid = 0m;
+                var refundedAmount = 0m;
+
+                try
+                {
+                    // FIXED HERE: Safely read database tinyint/int as standard integer mapping
+                    if (row["IsPurchased"] != DBNull.Value && Convert.ToInt32(row["IsPurchased"]) == 1)
+                    {
+                        isPurchased = true;
+                    }
+                    if (row["TotalPaid"] != DBNull.Value)
+                    {
+                        totalPaid = Convert.ToDecimal(row["TotalPaid"]);
+                    }
+                    if (row["RefundedAmount"] != DBNull.Value)
+                    {
+                        refundedAmount = Convert.ToDecimal(row["RefundedAmount"]);
+                    }
+                }
+                catch { }
+
+                <tr>
+                    <td>
+                        <a href="/Member/BookDetails?id=@row["BookID"]" style="color:#4f46e5;font-weight:600;">
+                            @row["BookTitle"]
+                        </a>
+                        @if (isPurchased)
+                        {
+                            <span class="badge badge-success" style="margin-left:8px;">OWNED</span>
+                        }
+                    </td>
+                    <td>@Convert.ToDateTime(row["BorrowDate"]).ToString("MMM dd, yyyy")</td>
+                    <td>
+                        @if (!isPurchased)
+                        {
+                            @Convert.ToDateTime(row["DueDate"]).ToString("MMM dd, yyyy")
+                        }
+                        else
+                        {
+                            <span style="color:#9ca3af;">N/A</span>
+                        }
+                    </td>
+                    <td>
+                        @if (row["ReturnDate"] != DBNull.Value && !isPurchased)
+                        {
+                            @Convert.ToDateTime(row["ReturnDate"]).ToString("MMM dd, yyyy")
+                        }
+                        else if (isPurchased)
+                        {
+                            <span style="color:#9ca3af;">Purchased</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td>
+                        @if (isPurchased)
+                        {
+                            <span class="badge badge-purple">Owned</span>
+                        }
+                        else
+                        {
+                            <span class="badge @(row["Status"].ToString() == "Returned" ? "badge-success" : (row["Status"].ToString() == "Overdue" ? "badge-danger" : "badge-info"))">
+                                @row["Status"]
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        $@totalPaid
+                        @if (refundedAmount > 0)
+                        {
+                            <span style="color:#16a34a;"> (Refunded: $@refundedAmount)</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="background:#f0fdf4; border: 2px solid #16a34a;">
+    <h3 style="color:#16a34a; margin-bottom: 10px;">📊 Summary</h3>
+    <p><strong>Total Spent:</strong> $@Model.TotalSpent</p>
+    <p><strong>Books Owned:</strong> @Model.BooksOwned</p>
+    <p><strong>Total Refunded:</strong> $@Model.TotalRefunded</p>
+</div>

@@ -1,0 +1,151 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.BorrowsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Borrows";
+}
+
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success" style="padding:15px; background:#f0fdf4; border-left:4px solid #10b981; margin-bottom:20px; color:#166534;">
+        @Model.Success
+    </div>
+}
+
+<div class="stats" style="display:flex; gap:10px; margin-bottom:20px;">
+    <div class="stat-card" style="padding:15px; background:#f3f4f6; border-radius:8px; text-align:center; flex:1;">
+        <div class="stat-number" style="font-size:24px; font-weight:bold;">@Model.TotalBorrows</div>
+        <div class="stat-label">Total Borrows</div>
+    </div>
+    <div class="stat-card" style="padding:15px; background:#f3f4f6; border-radius:8px; text-align:center; flex:1;">
+        <div class="stat-number" style="font-size:24px; font-weight:bold;">@Model.TotalOwned</div>
+        <div class="stat-label">Books Owned</div>
+    </div>
+    <div class="stat-card" style="padding:15px; background:#f3f4f6; border-radius:8px; text-align:center; flex:1;">
+        <div class="stat-number" style="font-size:24px; font-weight:bold;">@Model.ActiveBorrows</div>
+        <div class="stat-label">Active</div>
+    </div>
+    <div class="stat-card" style="padding:15px; background:#fef3c7; border-radius:8px; text-align:center; flex:1;">
+        <div class="stat-number" style="font-size:24px; font-weight:bold; color:#b45309;">$@Model.TotalFines</div>
+        <div class="stat-label">Unpaid Fines</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:#f9fafb; border-bottom:1px solid #e5e7eb;">
+        <h2 class="card-title" style="margin:0;">All Borrow Records</h2>
+    </div>
+
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f9fafb; border-bottom:2px solid #e5e7eb;">
+                <th style="padding:12px; text-align:left;">Member</th>
+                <th style="padding:12px; text-align:left;">Book</th>
+                <th style="padding:12px; text-align:left;">Borrow Date</th>
+                <th style="padding:12px; text-align:left;">Due Date</th>
+                <th style="padding:12px; text-align:left;">Return Date</th>
+                <th style="padding:12px; text-align:left;">Status</th>
+                <th style="padding:12px; text-align:left;">Owned</th>
+                <th style="padding:12px; text-align:left;">Amount</th>
+                <th style="padding:12px; text-align:center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Borrows.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="9" style="padding:20px; text-align:center; color:#6b7280;">No borrow records found in the system.</td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.Borrows.Rows)
+            {
+                var isPurchased = false;
+                var unpaidAmount = 0m;
+                var paymentStatus = "Paid";
+
+                try
+                {
+                    if (row["IsPurchased"] != DBNull.Value && Convert.ToInt32(row["IsPurchased"]) == 1)
+                    {
+                        isPurchased = true;
+                    }
+                    if (row["UnpaidAmount"] != DBNull.Value)
+                    {
+                        unpaidAmount = Convert.ToDecimal(row["UnpaidAmount"]);
+                    }
+                    if (row.Table.Columns.Contains("PaymentStatus") && row["PaymentStatus"] != DBNull.Value && row["PaymentStatus"] != null)
+                    {
+                        paymentStatus = row["PaymentStatus"].ToString();
+                    }
+                }
+                catch { }
+
+                var status = row["Status"]?.ToString();
+                var isReturned = status == "Returned";
+
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                    <td style="padding:12px;">@row["MemberName"]</td>
+                    <td style="padding:12px; font-weight:500;">@row["BookTitle"]</td>
+                    <td style="padding:12px;">@(row["BorrowDate"] != DBNull.Value ? Convert.ToDateTime(row["BorrowDate"]).ToString("MMM dd, yyyy") : "-")</td>
+                    <td style="padding:12px;">@(row["DueDate"] != DBNull.Value ? Convert.ToDateTime(row["DueDate"]).ToString("MMM dd, yyyy") : "-")</td>
+                    <td style="padding:12px;">
+                        @if (row["ReturnDate"] != DBNull.Value)
+                        {
+                            <span style="color:#10b981;">@Convert.ToDateTime(row["ReturnDate"]).ToString("MMM dd, yyyy")</span>
+                        }
+                        else
+                        {
+                            <span style="color:#9ca3af; font-style:italic;">Not Returned</span>
+                        }
+                    </td>
+                    <td style="padding:12px;">
+                        <span style="padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; @(isPurchased ? "background:#8b5cf6; color:white;" : (isReturned ? "background:#10b981; color:white;" : (status == "Overdue" ? "background:#ef4444; color:white;" : "background:#3b82f6; color:white;")))">
+                            @(isPurchased ? "Owned" : status)
+                        </span>
+                    </td>
+                    <td style="padding:12px; text-align:center;">
+                        @if (isPurchased)
+                        {
+                            <span style="color:#10b981; font-weight:bold; font-size:16px;">✓</span>
+                        }
+                        else
+                        {
+                            <span style="color:#d1d5db;">-</span>
+                        }
+                    </td>
+                    <td style="padding:12px;">
+                        <span style="padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; @(paymentStatus == "Paid" || unpaidAmount == 0 ? "background:#d1fae5; color:#065f46;" : "background:#fee2e2; color:#991b1b;")">
+                            $@unpaidAmount
+                        </span>
+                    </td>
+                    <td style="padding:12px; text-align:center;">
+                        @if (!isPurchased && !isReturned)
+                        {
+                            <form method="post" asp-page-handler="Return" style="display:inline;">
+                                <input type="hidden" name="borrowId" value="@row["BorrowID"]" />
+                                <button type="submit" style="padding:6px 12px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:500;"
+                                        onclick="return confirm('Are you sure you want to mark this book as returned?')">
+                                    Return
+                                </button>
+                            </form>
+                        }
+                        @if (unpaidAmount > 0)
+                        {
+                            <form method="post" asp-page-handler="PayFine" style="display:inline; margin-left:5px;">
+                                <input type="hidden" name="borrowId" value="@row["BorrowID"]" />
+                                <button type="submit" style="padding:6px 12px; background:#3b82f6; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:500;"
+                                        onclick="return confirm('Confirm paying off the fine balance of $@unpaidAmount?')">
+                                    Pay Fine
+                                </button>
+                            </form>
+                        }
+                        @if ((isPurchased || isReturned) && unpaidAmount == 0)
+                        {
+                            <span style="color:#9ca3af; font-size:12px; font-style:italic;">No Actions Pending</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

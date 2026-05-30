@@ -1,0 +1,82 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.AddBookModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Add Book";
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error">@Model.Error</div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">➕ Add New Book</h2>
+    </div>
+
+    <form method="post">
+        <div class="form-group">
+            <label>Title *</label>
+            <input type="text" asp-for="Title" class="form-input" required
+                   placeholder="Enter book title" />
+        </div>
+
+        <div class="form-group">
+            <label>Author *</label>
+            <input type="text" asp-for="Author" class="form-input" required
+                   placeholder="Enter author name" />
+        </div>
+
+        <div class="form-group">
+            <label>Category *</label>
+            <select asp-for="Category" class="form-input" required>
+                <option value="">Select Category</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Science Fiction">Science Fiction</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Romance">Romance</option>
+                <option value="Horror">Horror</option>
+                <option value="Biography">Biography</option>
+                <option value="History">History</option>
+                <option value="Self Help">Self Help</option>
+                <option value="Business">Business</option>
+                <option value="Science">Science</option>
+                <option value="Programming">Programming</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" asp-for="Quantity" class="form-input"
+                   min="1" value="1" required />
+        </div>
+
+        <div class="form-group">
+            <label>Rent Fee ($) — flat fee paid upfront when borrowing</label>
+            <input type="number" asp-for="Price" class="form-input"
+                   min="0" value="1.00" step="0.01" required />
+            <small style="color:#6b7280;">e.g. $1.00 charged once when the member borrows</small>
+        </div>
+
+        <div class="form-group">
+            <label>Daily Late Fee ($ per day) — charged per day if returned late</label>
+            <input type="number" asp-for="DailyLateFee" class="form-input"
+                   min="0" value="1.00" step="0.01" required />
+            <small style="color:#6b7280;">e.g. $1.00/day — 6 days late = $6.00 fine</small>
+        </div>
+
+        <div class="form-group">
+            <label>Purchase Price ($) — price to buy the book outright</label>
+            <input type="number" asp-for="PurchasePrice" class="form-input"
+                   min="0" value="10.00" step="0.01" required />
+            <small style="color:#6b7280;">e.g. $10.00 to own the book forever</small>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">➕ Add Book</button>
+            <a href="/Librarian/Books" class="btn" style="background:#6b7280;color:white;">Cancel</a>
+        </div>
+    </form>
+</div>

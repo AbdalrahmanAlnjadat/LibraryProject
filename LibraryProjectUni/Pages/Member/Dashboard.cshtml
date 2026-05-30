@@ -1,0 +1,115 @@
+﻿@page
+@model LibraryProjectUni.Pages.Member.DashboardModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard"; ;
+}
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-number">@Model.ActiveBorrows</div>
+        <div class="stat-label">Active Borrows</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.BooksAvailable</div>
+        <div class="stat-label">Books Available</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.TotalBorrowed</div>
+        <div class="stat-label">Total Borrowed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">$@Model.TotalFines</div>
+        <div class="stat-label">Unpaid Fines</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.ActiveBorrows / 3</div>
+        <div class="stat-label">Borrow Limit Used</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">📖 My Active Borrows</h2>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Fine</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ActiveBorrows == 0)
+            {
+                <tr>
+                    <td colspan="5" class="empty">You have no active borrows</td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.ActiveBorrowsList.Rows)
+            {
+                var dueDate = Convert.ToDateTime(row["DueDate"]);
+                var daysLeft = (dueDate - DateTime.Now).Days;
+                var isOverdue = daysLeft < 0;
+                var isUrgent = daysLeft >= 0 && daysLeft <= 2;
+
+                var fineAmount = 0m;
+                try
+                {
+                    if (row["UnpaidAmount"] != null && row["UnpaidAmount"] != DBNull.Value)
+                    {
+                        fineAmount = Convert.ToDecimal(row["UnpaidAmount"]);
+                    }
+                }
+                catch { fineAmount = 0; }
+
+                <tr>
+                    <td>
+                        <a href="/Member/BookDetails?id=@row["BookID"]" style="color:#4f46e5;font-weight:600;">
+                            @row["BookTitle"]
+                        </a>
+                    </td>
+                    <td>@Convert.ToDateTime(row["BorrowDate"]).ToString("MMM dd, yyyy")</td>
+                    <td>
+                        <span style="@(isOverdue ? "color:#dc2626;font-weight:bold;" : (isUrgent ? "color:#f59e0b;font-weight:bold;" : ""))">
+                            @dueDate.ToString("MMM dd, yyyy")
+                        </span>
+                        @if (isOverdue)
+                        {
+                            <span class="badge badge-danger" style="margin-left:8px;">Overdue!</span>
+                        }
+                        else if (isUrgent)
+                        {
+                            <span class="badge badge-warning" style="margin-left:8px;">Due Soon!</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="badge @(row["Status"].ToString() == "Overdue" ? "badge-danger" : "badge-info")">
+                            @row["Status"]
+                        </span>
+                    </td>
+                    <td>$@fineAmount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalFines > 0)
+{
+    <div class="card" style="background:#fef2f2;border:2px solid #dc2626;">
+        <h3 style="color:#dc2626;margin-bottom:10px;">⚠️ Attention</h3>
+        <p style="color:#991b1b;">You have <strong>$@Model.TotalFines</strong> in unpaid fines. Please return your books on time!</p>
+    </div>
+}
+
+<div class="card" style="background:#f0fdf4; border: 2px solid #16a34a;">
+    <h3 style="color:#16a34a; margin-bottom: 10px;">📊 Your Stats</h3>
+    <p><strong>Books Owned:</strong> @Model.BooksOwned (purchased forever)</p>
+    <p><strong>Total Spent:</strong> $@Model.TotalSpent</p>
+    <p><strong>Total Refunded:</strong> $@Model.TotalRefunded</p>
+    <p style="margin-top:10px;"><a href="/Member/Books" class="btn btn-primary">Browse More Books</a></p>
+</div>

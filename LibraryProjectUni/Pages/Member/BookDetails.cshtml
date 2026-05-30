@@ -1,0 +1,70 @@
+﻿@page
+@model LibraryProjectUni.Pages.Member.BookDetailsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">📖 @Model.Book.Title</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <h3 style="margin-bottom: 16px; color: #1a1a2e;">Book Information</h3>
+            <p><strong>Author:</strong> @Model.Book.Author</p>
+            <p><strong>Category:</strong> @Model.Book.Category</p>
+            <p><strong>Rent Price:</strong> $1 (rental)</p>
+            <p><strong>Buy Price:</strong> $@Model.Book.PurchasePrice</p>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 16px; color: #1a1a2e;">Availability</h3>
+            <p><strong>Total Copies:</strong> @Model.Book.Quantity</p>
+            <p><strong>Available:</strong> @Model.Book.AvailableQuantity</p>
+
+            @if (Model.Book.AvailableQuantity > 0)
+            {
+                <span class="badge badge-success" style="margin-top: 10px;">✓ Available</span>
+            }
+            else
+            {
+                <span class="badge badge-danger" style="margin-top: 10px;">✗ Out of Stock</span>
+            }
+        </div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 10px;">
+        <a href="/Member/Books" class="btn" style="background:#6b7280;color:white;">← Back to Books</a>
+
+        @if (Model.Book.AvailableQuantity > 0)
+        {
+            <!-- Borrow Button -->
+            <form method="post" asp-page-handler="Borrow" style="display:inline;">
+                <input type="hidden" name="bookId" value="@Model.Book.BookId" />
+                <button type="submit" class="btn btn-primary"
+                        onclick="return confirm('Borrow this book for $1 + $5 deposit? The deposit will be refunded if returned on time.')">
+                    📖 Borrow for $1
+                </button>
+            </form>
+
+            <!-- Buy Button -->
+            @if (Model.Book.PurchasePrice > 0)
+            {
+                <form method="post" asp-page-handler="BuyDirect" style="display:inline;">
+                    <input type="hidden" name="bookId" value="@Model.Book.BookId" />
+                    <input type="hidden" name="price" value="@Model.Book.PurchasePrice" />
+                    <button type="submit" class="btn btn-success"
+                            onclick="return confirm('Buy this book for $@Model.Book.PurchasePrice? This will be yours forever!')">
+                        💳 Buy for $@Model.Book.PurchasePrice
+                    </button>
+                </form>
+            }
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-success" style="margin-top: 20px;">@Model.Message</div>
+    }
+</div>

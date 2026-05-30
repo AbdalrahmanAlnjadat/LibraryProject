@@ -1,0 +1,144 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.DashboardModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="quick-actions" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+    <a href="/Librarian/AddBook" class="btn btn-primary">➕ Add Book</a>
+    <a href="/Librarian/Books" class="btn">📚 All Books</a>
+    <a href="/Librarian/Users" class="btn">👥 All Users</a>
+    <a href="/Librarian/Borrows" class="btn">📖 All Borrows</a>
+</div>
+
+@if (Model.OverdueCount > 0)
+{
+    <div class="card" style="border-left: 4px solid #dc2626; background: #fef2f2; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+                <h3 style="color: #dc2626; margin: 0;">⚠️ Overdue Books (@Model.OverdueCount)</h3>
+                <p style="color: #991b1b; margin: 5px 0 0 0;">These books need attention!</p>
+            </div>
+            <a href="/Librarian/Borrows" class="btn" style="background: #dc2626; color: white;">View All</a>
+        </div>
+
+        <table style="margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Book</th>
+                    <th>Due Date</th>
+                    <th>Days Late</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (System.Data.DataRow row in Model.RecentOverdue.Rows)
+                {
+                    <tr>
+                        <td>@row["MemberName"]</td>
+                        <td>@row["BookTitle"]</td>
+                        <td style="color: #dc2626;">@Convert.ToDateTime(row["DueDate"]).ToString("MMM dd")</td>
+                        <td style="font-weight: bold; color: #dc2626;">
+                            @{
+                                var daysLate = (int)(DateTime.Now - Convert.ToDateTime(row["DueDate"])).TotalDays;
+                            }
+                            @daysLate days
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-number">@Model.TotalBooks</div>
+        <div class="stat-label">Total Books</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.TotalUsers</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.ActiveBorrows</div>
+        <div class="stat-label">Active Borrows</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">$@Model.TotalRevenue</div>
+        <div class="stat-label">Revenue</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">📋 Recent Borrows</h2>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Book</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Owned</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.RecentBorrows.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="empty">No recent borrows</td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.RecentBorrows.Rows)
+            {
+                var isPurchased = false;
+                var status = row["Status"]?.ToString();
+
+                try
+                {
+                    // FIXED HERE: Safely read database tinyint/int as standard integer mapping
+                    if (row["IsPurchased"] != DBNull.Value && Convert.ToInt32(row["IsPurchased"]) == 1)
+                    {
+                        isPurchased = true;
+                    }
+                }
+                catch { }
+
+                // Skip purchased books - they're owned
+                if (isPurchased) continue;
+
+                // Skip returned - show only active
+                if (status == "Returned") continue;
+
+                <tr>
+                    <td>@row["MemberName"]</td>
+                    <td>@row["BookTitle"]</td>
+                    <td>@Convert.ToDateTime(row["BorrowDate"]).ToString("MMM dd")</td>
+                    <td>@Convert.ToDateTime(row["DueDate"]).ToString("MMM dd")</td>
+                    <td>
+                        <span class="badge @(status == "Overdue" ? "badge-danger" : "badge-info")">
+                            @status
+                        </span>
+                    </td>
+                    <td>
+                        @if (isPurchased)
+                        {
+                            <span class="badge badge-purple">Owned</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="background:#f0fdf4; border: 2px solid #16a34a;">
+    <h3 style="color:#16a34a; margin-bottom: 10px;">📊 Summary</h3>
+    <p><strong>Total Books Owned:</strong> @Model.TotalBooksOwned</p>
+    <p><strong>Total Fines Owed:</strong> $@Model.TotalFines</p>
+    <p><strong>Total Refunded:</strong> $@Model.TotalRefunded</p>
+</div>

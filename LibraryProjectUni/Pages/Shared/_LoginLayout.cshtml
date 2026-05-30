@@ -1,0 +1,126 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"] - Library System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', sans-serif;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .card {
+                background: white;
+                padding: 40px;
+                border-radius: 16px;
+                width: 100%;
+                max-width: 420px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+
+            h2 {
+                color: #1a1a2e;
+                margin-bottom: 8px;
+                font-size: 26px;
+            }
+
+            .subtitle {
+                color: #666;
+                margin-bottom: 28px;
+                font-size: 14px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-label {
+                display: block;
+                margin-bottom: 8px;
+                color: #333;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 14px;
+                border: 2px solid #e5e5e5;
+                border-radius: 10px;
+                font-size: 15px;
+                transition: 0.2s;
+            }
+
+                .form-input:focus {
+                    outline: none;
+                    border-color: #4f46e5;
+                }
+
+            .btn {
+                width: 100%;
+                padding: 14px;
+                background: linear-gradient(135deg, #4f46e5, #6366f1);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+                .btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+                }
+
+            .alert {
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .alert-error {
+                background: #fef2f2;
+                color: #dc2626;
+            }
+
+            .alert-success {
+                background: #f0fdf4;
+                color: #16a34a;
+            }
+
+            .link {
+                text-align: center;
+                margin-top: 24px;
+                color: #666;
+                font-size: 14px;
+            }
+
+                .link a {
+                    color: #4f46e5;
+                    text-decoration: none;
+                    font-weight: 600;
+                }
+    </style>
+</head>
+<body>
+    <div class="card">
+        @RenderBody()
+    </div>
+</body>
+</html>

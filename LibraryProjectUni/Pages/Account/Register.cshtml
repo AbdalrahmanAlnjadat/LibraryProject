@@ -1,0 +1,37 @@
+﻿@page
+@model LibraryProjectUni.Pages.Account.RegisterModel
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "Register";
+}
+
+<h2>Create Account</h2>
+<p class="subtitle">Join the Library System</p>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error">@Model.Error</div>
+}
+
+<form method="post">
+    <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input asp-for="FullName" type="text" class="form-input" placeholder="Enter your name" required />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" type="email" class="form-input" placeholder="Enter your email" required />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Password</label>
+        <input asp-for="Password" type="password" class="form-input" placeholder="Create a password" required />
+    </div>
+
+    <button type="submit" class="btn">Register</button>
+</form>
+
+<div class="link">
+    Already have an account? <a href="/Account/Login">Login</a>
+</div>

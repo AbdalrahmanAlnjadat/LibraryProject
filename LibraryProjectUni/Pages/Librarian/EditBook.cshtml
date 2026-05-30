@@ -1,0 +1,86 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.EditBookModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Edit Book";
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error">@Model.Error</div>
+}
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success">@Model.Success</div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">✏️ Edit Book</h2>
+    </div>
+
+    <form method="post">
+        <input type="hidden" asp-for="Book.BookId" />
+
+        <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input asp-for="Book.Title" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Author *</label>
+            <input asp-for="Book.Author" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select asp-for="Book.Category" class="form-input" required>
+                <option value="">Select Category</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Science Fiction">Science Fiction</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Romance">Romance</option>
+                <option value="Horror">Horror</option>
+                <option value="Biography">Biography</option>
+                <option value="History">History</option>
+                <option value="Self Help">Self Help</option>
+                <option value="Business">Business</option>
+                <option value="Science">Science</option>
+                <option value="Programming">Programming</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Total Quantity</label>
+            <input asp-for="Book.Quantity" type="number" class="form-input" min="0" required />
+            <small style="color:#6b7280;">Available copies are recalculated automatically.</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Rent Fee ($) — flat fee paid upfront when borrowing</label>
+            <input asp-for="Book.Price" type="number" step="0.01"
+                   class="form-input" min="0" required />
+            <small style="color:#6b7280;">e.g. $1.00 charged once when the member borrows</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Daily Late Fee ($ per day) — charged per day if returned late</label>
+            <input asp-for="Book.DailyLateFee" type="number" step="0.01"
+                   class="form-input" min="0" required />
+            <small style="color:#6b7280;">e.g. $1.00/day — 6 days late = $6.00 fine</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Purchase Price ($) — price to buy the book outright</label>
+            <input asp-for="Book.PurchasePrice" type="number" step="0.01"
+                   class="form-input" min="0" required />
+            <small style="color:#6b7280;">e.g. $10.00 to own the book forever</small>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+            <a href="/Librarian/Books" class="btn" style="background:#6b7280;color:white;">Cancel</a>
+        </div>
+    </form>
+</div>

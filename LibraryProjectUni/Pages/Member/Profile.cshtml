@@ -1,0 +1,35 @@
+﻿@page
+@model LibraryProjectUni.Pages.Member.ProfileModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My Profile";
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error">@Model.Error</div>
+}
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success">@Model.Success</div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">👤 My Profile</h2>
+    </div>
+
+    <form method="post">
+        <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" name="fullName" value="@Model.FullName" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" value="@Model.Email" class="form-input" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+    </form>
+</div>

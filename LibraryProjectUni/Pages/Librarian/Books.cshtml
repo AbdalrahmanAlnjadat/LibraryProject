@@ -1,0 +1,129 @@
+﻿@page
+@model LibraryProjectUni.Pages.Librarian.BooksModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Books";
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error" style="padding:15px;background:#fef2f2;border-left:4px solid #ef4444;margin-bottom:20px;">
+        @Model.Error
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success" style="padding:15px;background:#f0fdf4;border-left:4px solid #10b981;margin-bottom:20px;">
+        @Model.Success
+    </div>
+}
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="get" class="search-form">
+        <div style="display: flex; gap: 10px;">
+            <input type="text"
+                   name="search"
+                   value="@Model.SearchTerm"
+                   class="form-input"
+                   placeholder="Search by title or author..."
+                   style="flex: 1;" />
+            <button type="submit" class="btn btn-primary">Search</button>
+            @if (!string.IsNullOrEmpty(Model.SearchTerm))
+            {
+                <a href="/Librarian/Books" class="btn" style="background:#6b7280;color:white;">Clear</a>
+            }
+        </div>
+
+        <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="/Librarian/Books"
+               class="btn btn-sm"
+               style="@(string.IsNullOrEmpty(Model.CategoryFilter) ? "background:#4f46e5;color:white;" : "background:#e5e7eb;")">
+                All
+            </a>
+            @foreach (string category in Model.Categories)
+            {
+                <a asp-page="/Librarian/Books"
+                   asp-route-categoryFilter="@category"
+                   class="btn btn-sm"
+                   style="@(Model.CategoryFilter == category ? "background:#4f46e5;color:white;" : "background:#e5e7eb;")">
+                    @category
+                </a>
+            }
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 class="card-title">All Books (@Model.Books.Rows.Count)</h2>
+        <a href="/Librarian/AddBook" class="btn btn-primary">Add Book</a>
+    </div>
+
+    <table style="width:100%;">
+        <thead>
+            <tr style="background:#f9fafb;">
+                <th style="padding:12px;text-align:left;">Title</th>
+                <th style="padding:12px;text-align:left;">Author</th>
+                <th style="padding:12px;text-align:left;">Category</th>
+                <th style="padding:12px;text-align:left;">Available</th>
+                <th style="padding:12px;text-align:left;">Rent Fee</th>
+                <th style="padding:12px;text-align:left;">Late Fee/Day</th>
+                <th style="padding:12px;text-align:left;">Buy Price</th>
+                <th style="padding:12px;text-align:left;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Books.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="8" style="padding:20px;text-align:center;color:#6b7280;">
+                        No books found
+                    </td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.Books.Rows)
+            {
+                var rentFee = row["Price"] != DBNull.Value ? Convert.ToDecimal(row["Price"]) : 0m;
+                var dailyLateFee = row["DailyLateFee"] != DBNull.Value ? Convert.ToDecimal(row["DailyLateFee"]) : 0m;
+                var purchasePrice = row["PurchasePrice"] != DBNull.Value ? Convert.ToDecimal(row["PurchasePrice"]) : 0m;
+                var available = Convert.ToInt32(row["AvailableQuantity"]);
+                var total = Convert.ToInt32(row["Quantity"]);
+
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                    <td style="padding:12px;font-weight:600;">@row["Title"]</td>
+                    <td style="padding:12px;">@row["Author"]</td>
+                    <td style="padding:12px;">@row["Category"]</td>
+                    <td style="padding:12px;">
+                        <span style="padding:4px 8px;border-radius:4px;font-size:12px;
+                            background:@(available > 0 ? "#d1fae5" : "#fee2e2");
+                            color:@(available > 0 ? "#065f46" : "#991b1b");">
+                            @available / @total
+                        </span>
+                    </td>
+                    <td style="padding:12px;color:#2563eb;font-weight:600;">
+                        $@rentFee.ToString("0.00")
+                    </td>
+                    <td style="padding:12px;color:#dc2626;font-weight:600;">
+                        $@dailyLateFee.ToString("0.00")/day
+                    </td>
+                    <td style="padding:12px;color:#16a34a;font-weight:600;">
+                        $@purchasePrice.ToString("0.00")
+                    </td>
+                    <td style="padding:12px;">
+                        <a href="/Librarian/EditBook?id=@row["BookID"]"
+                           class="btn btn-primary btn-sm"
+                           style="margin-right:5px;">Edit</a>
+                        <form method="post" asp-page-handler="Delete" style="display:inline;">
+                            <input type="hidden" name="bookId" value="@row["BookID"]" />
+                            <button type="submit"
+                                    style="padding:4px 8px;background:#ef4444;color:white;border:none;border-radius:4px;cursor:pointer;"
+                                    onclick="return confirm('Are you sure you want to DELETE this book?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

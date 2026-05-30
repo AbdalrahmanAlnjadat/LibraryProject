@@ -1,0 +1,131 @@
+﻿@page
+@model LibraryProjectUni.Pages.Member.BooksModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Browse Books";
+}
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-error">@Model.Error</div>
+}
+@if (!string.IsNullOrEmpty(Model.Success))
+{
+    <div class="alert alert-success">@Model.Success</div>
+}
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="get">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <input type="text" name="search" value="@Model.SearchTerm"
+                   class="form-input" placeholder="Search by title, author..." style="flex: 1;" />
+            <button type="submit" class="btn btn-primary">Search</button>
+            @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.CategoryFilter))
+            {
+                <a href="/Member/Books" class="btn" style="background:#6b7280;color:white;">Clear</a>
+            }
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="/Member/Books" class="btn btn-sm"
+               style="@(string.IsNullOrEmpty(Model.CategoryFilter) ? "background:#4f46e5;color:white;" : "background:#e5e7eb;")">
+                All
+            </a>
+            @foreach (string cat in Model.Categories)
+            {
+                <a href="/Member/Books?categoryFilter=@cat" class="btn btn-sm"
+                   style="@(Model.CategoryFilter == cat ? "background:#4f46e5;color:white;" : "background:#e5e7eb;")">
+                    @cat
+                </a>
+            }
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Available Books (@Model.Books.Rows.Count)</h2>
+    </div>
+
+    <table style="width:100%;">
+        <thead>
+            <tr style="background:#f9fafb;">
+                <th style="padding:12px;">Title</th>
+                <th style="padding:12px;">Author</th>
+                <th style="padding:12px;">Category</th>
+                <th style="padding:12px;">Available</th>
+                <th style="padding:12px;">Rent Fee</th>
+                <th style="padding:12px;">Late Fee/Day</th>
+                <th style="padding:12px;">Buy Price</th>
+                <th style="padding:12px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Books.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="8" style="padding:20px;text-align:center;color:#6b7280;">
+                        No books found matching your search.
+                    </td>
+                </tr>
+            }
+            @foreach (System.Data.DataRow row in Model.Books.Rows)
+            {
+                var rentFee = row["Price"] != DBNull.Value ? Convert.ToDecimal(row["Price"]) : 0m;
+                var dailyLateFee = row["DailyLateFee"] != DBNull.Value ? Convert.ToDecimal(row["DailyLateFee"]) : 0m;
+                var purchasePrice = row["PurchasePrice"] != DBNull.Value ? Convert.ToDecimal(row["PurchasePrice"]) : 0m;
+                var available = Convert.ToInt32(row["AvailableQuantity"]);
+
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                    <td style="padding:12px;">
+                        <a href="/Member/BookDetails?id=@row["BookID"]"
+                           style="color:#4f46e5;font-weight:600;">@row["Title"]</a>
+                    </td>
+                    <td style="padding:12px;">@row["Author"]</td>
+                    <td style="padding:12px;">@row["Category"]</td>
+                    <td style="padding:12px;">
+                        <span style="padding:4px 8px;border-radius:4px;font-size:12px;
+                            background:@(available > 0 ? "#d1fae5" : "#fee2e2");
+                            color:@(available > 0 ? "#065f46" : "#991b1b");">
+                            @available
+                        </span>
+                    </td>
+                    <td style="padding:12px;color:#2563eb;font-weight:600;">
+                        $@rentFee.ToString("0.00")
+                    </td>
+                    <td style="padding:12px;color:#dc2626;font-weight:600;">
+                        $@dailyLateFee.ToString("0.00")/day
+                    </td>
+                    <td style="padding:12px;color:#16a34a;font-weight:bold;">
+                        $@purchasePrice.ToString("0.00")
+                    </td>
+                    <td style="padding:12px;">
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            @if (available > 0)
+                            {
+                                <form method="post" asp-page-handler="Borrow">
+                                    <input type="hidden" name="bookId" value="@row["BookID"]" />
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                            onclick="return confirm('Borrow for $@rentFee.ToString("0.00") upfront + $5 refundable deposit?')">
+                                        Borrow
+                                    </button>
+                                </form>
+                            }
+                            @if (purchasePrice > 0)
+                            {
+                                <form method="post" asp-page-handler="BuyDirect">
+                                    <input type="hidden" name="bookId" value="@row["BookID"]" />
+                                    <input type="hidden" name="price" value="@purchasePrice" />
+                                    <button type="submit" class="btn btn-success btn-sm"
+                                            onclick="return confirm('Buy for $@purchasePrice.ToString("0.00")? Yours forever.')">
+                                        Buy
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
