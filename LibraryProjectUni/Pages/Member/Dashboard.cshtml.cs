@@ -17,8 +17,8 @@ namespace LibraryProjectUni.Pages.Member
         public decimal TotalSpent { get; set; }
         public int BooksOwned { get; set; }
         public decimal TotalRefunded { get; set; }
-        public DataTable MyBorrows { get; set; }
-        public DataTable ActiveBorrowsList { get; set; }
+        public DataTable MyBorrows { get; set; } = new();
+        public DataTable ActiveBorrowsList { get; set; } = new();
 
         public IActionResult OnGet()
         {

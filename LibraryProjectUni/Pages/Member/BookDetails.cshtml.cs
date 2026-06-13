@@ -8,19 +8,20 @@ namespace LibraryProjectUni.Pages.Member
 {
     public class BookDetailsModel : ClsBaseController
     {
-        public ClsBook Book { get; set; }
-        public string Message { get; set; }
+        public ClsBook Book { get; set; } = new();
+        public string Message { get; set; } = "";
 
         public IActionResult OnGet(int id)
         {
             var check = RequireMember();
             if (check != null) return check;
 
-            Book = ClsBook.FindByBookId(id);
+            ClsBook? book = ClsBook.FindByBookId(id);
 
-            if (Book == null)
+            if (book == null)
                 return RedirectToPage("/Member/Books");
 
+            Book = book;
             return Page();
         }
 
@@ -39,8 +40,7 @@ namespace LibraryProjectUni.Pages.Member
                 if (borrow.Save())
                 {
                     Message = "Book borrowed successfully!";
-                    // Refresh book
-                    Book = ClsBook.FindByBookId(bookId);
+                    RefreshBook(bookId);
                 }
             }
             catch (System.Exception ex)
@@ -48,8 +48,7 @@ namespace LibraryProjectUni.Pages.Member
                 Message = ex.Message;
             }
 
-            if (Book != null)
-                Book = ClsBook.FindByBookId(bookId);
+            RefreshBook(bookId);
 
             return Page();
         }
@@ -64,8 +63,7 @@ namespace LibraryProjectUni.Pages.Member
                 if (ClsBook.BuyBookDirect(SessionUserId, bookId, price))
                 {
                     Message = $"Book purchased for ${price}! It's yours now.";
-                    // Refresh book
-                    Book = ClsBook.FindByBookId(bookId);
+                    RefreshBook(bookId);
                 }
                 else
                 {
@@ -77,10 +75,14 @@ namespace LibraryProjectUni.Pages.Member
                 Message = ex.Message;
             }
 
-            if (Book != null)
-                Book = ClsBook.FindByBookId(bookId);
+            RefreshBook(bookId);
 
             return Page();
+        }
+
+        private void RefreshBook(int bookId)
+        {
+            Book = ClsBook.FindByBookId(bookId) ?? Book;
         }
     }
 }

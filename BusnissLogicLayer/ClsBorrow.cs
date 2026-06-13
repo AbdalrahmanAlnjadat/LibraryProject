@@ -56,7 +56,7 @@ namespace BusnissLogicLayer
             Mode = enMode.Update;
         }
 
-        public static ClsBorrow FindByBorrowId(int borrowId)
+        public static ClsBorrow? FindByBorrowId(int borrowId)
         {
             DataTable dt = _borrowDal.GetBorrowById(borrowId);
 
@@ -115,7 +115,7 @@ namespace BusnissLogicLayer
             if (_borrowDal.GetActiveBorrowCount(UserId) >= 3)
                 throw new InvalidOperationException("You can only borrow up to 3 books at a time.");
 
-            ClsBook book = ClsBook.FindByBookId(BookId);
+            ClsBook? book = ClsBook.FindByBookId(BookId);
             if (book == null || book.AvailableQuantity <= 0)
                 throw new InvalidOperationException("This book is currently out of stock.");
 

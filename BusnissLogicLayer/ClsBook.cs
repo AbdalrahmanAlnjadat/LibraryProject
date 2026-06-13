@@ -51,7 +51,7 @@ namespace BusnissLogicLayer
             Mode = enMode.Update;
         }
 
-        public static ClsBook FindByBookId(int id)
+        public static ClsBook? FindByBookId(int id)
         {
             DataTable dt = _bookDal.GetBookById(id);
             if (dt.Rows.Count == 0) return null;
@@ -71,7 +71,13 @@ namespace BusnissLogicLayer
             );
         }
 
-        public static DataTable GetAllBooks() => _bookDal.GetAllBooks();
+        
+
+        public static DataTable GetAllBooks()
+        {
+            return _bookDal.GetAllBooks(); 
+        }
+
         public static DataTable GetAvailableBooks() => _bookDal.GetAvailableBooks();
         public static bool DeleteBook(int id) => _bookDal.DeleteBook(id);
         public static DataTable SearchBooks(string keyword) => _bookDal.SearchBooks(keyword);
@@ -84,6 +90,7 @@ namespace BusnissLogicLayer
                 throw new Exception("Title is required.");
             if (Quantity < 0)
                 throw new Exception("Quantity cannot be negative.");
+
 
             int id = _bookDal.AddBook(Title, Author, Category, Quantity,
                                       Price, DailyLateFee, PurchasePrice);

@@ -9,12 +9,12 @@ namespace LibraryProjectUni.Pages.Librarian
 {
     public class BooksModel : ClsBaseController
     {
-        public DataTable Books { get; set; }
-        public string SearchTerm { get; set; }
-        public string CategoryFilter { get; set; }
-        public List<string> Categories { get; set; }
-        public string Success { get; set; }
-        public string Error { get; set; }
+        public DataTable Books { get; set; } = new();
+        public string SearchTerm { get; set; } = "";
+        public string CategoryFilter { get; set; } = "";
+        public List<string> Categories { get; set; } = new();
+        public string Success { get; set; } = "";
+        public string Error { get; set; } = "";
 
         public IActionResult OnGet(string search, string categoryFilter)
         {
@@ -36,7 +36,7 @@ namespace LibraryProjectUni.Pages.Librarian
             Categories = new List<string>();
             foreach (DataRow row in allBooks.Rows)
             {
-                string cat = row["Category"]?.ToString();
+                string cat = row["Category"]?.ToString() ?? "";
                 if (!string.IsNullOrEmpty(cat) && !Categories.Contains(cat))
                     Categories.Add(cat);
             }

@@ -18,8 +18,8 @@ namespace LibraryProjectUni.Pages.Librarian
         public decimal TotalFines { get; set; }
         public decimal TotalRefunded { get; set; }
         public int TotalBooksOwned { get; set; }
-        public DataTable RecentBorrows { get; set; }
-        public DataTable RecentOverdue { get; set; }
+        public DataTable RecentBorrows { get; set; } = new();
+        public DataTable RecentOverdue { get; set; } = new();
 
         public IActionResult OnGet()
         {

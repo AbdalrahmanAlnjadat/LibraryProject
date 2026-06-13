@@ -10,9 +10,9 @@ namespace LibraryProjectUni.Pages.Member
 {
     public class HistoryModel : ClsBaseController
     {
-        public DataTable History { get; set; }
-        public string Error { get; set; }
-        public string Success { get; set; }
+        public DataTable History { get; set; } = new();
+        public string Error { get; set; } = "";
+        public string Success { get; set; } = "";
         public decimal TotalSpent { get; set; }
         public int BooksOwned { get; set; }
         public decimal TotalRefunded { get; set; }

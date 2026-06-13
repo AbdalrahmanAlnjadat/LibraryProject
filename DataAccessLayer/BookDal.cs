@@ -11,6 +11,7 @@ namespace DataAccessLayer
             DataTable dt = new DataTable();
             using (SqlConnection conn = DbConnection.GetConnection())
             {
+
                 string query = @"
             SELECT BookID, Title, Author, Category, Quantity,
                    AvailableQuantity, Price, 
@@ -19,12 +20,13 @@ namespace DataAccessLayer
             FROM   Books
             ORDER BY Title";
 
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                
                     try
                     {
                         conn.Open();
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    
                             dt.Load(reader);
                     }
                     catch (Exception ex)
@@ -32,7 +34,7 @@ namespace DataAccessLayer
                         Console.WriteLine($"[GetAllBooks] DB error: {ex.Message}");
                         throw;
                     }
-                }
+                
             }
             return dt;
         }
@@ -53,6 +55,7 @@ namespace DataAccessLayer
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
+
                     cmd.Parameters.AddWithValue("@BookID", bookId);
                     try
                     {
@@ -113,6 +116,7 @@ namespace DataAccessLayer
                         int quantity, decimal rentFee, decimal dailyLateFee,
                         int availableQuantity, decimal purchasePrice)
         {
+
             using (SqlConnection conn = DbConnection.GetConnection())
             {
                 string query = @"
@@ -327,6 +331,35 @@ namespace DataAccessLayer
                 {
                     try
                     {
+                        decimal purchasePrice;
+
+                        string getPrice = @"
+                    SELECT PurchasePrice
+                    FROM Books
+                    WHERE BookID = @BookID";
+
+                        using (SqlCommand priceCmd = new SqlCommand(getPrice, conn, transaction))
+                        {
+                            priceCmd.Parameters.AddWithValue("@BookID", bookId);
+                            object result = priceCmd.ExecuteScalar();
+                            if (result == null || result == DBNull.Value)
+                                throw new InvalidOperationException("Book not found.");
+
+                            purchasePrice = Convert.ToDecimal(result);
+                        }
+
+                        // Decrease stock first so a purchase cannot be created for an unavailable book.
+                        string decreaseStock = @"
+                    UPDATE Books SET AvailableQuantity = AvailableQuantity - 1
+                    WHERE BookID = @BookID AND AvailableQuantity > 0";
+
+                        using (SqlCommand cmd2 = new SqlCommand(decreaseStock, conn, transaction))
+                        {
+                            cmd2.Parameters.AddWithValue("@BookID", bookId);
+                            if (cmd2.ExecuteNonQuery() == 0)
+                                throw new InvalidOperationException("Sorry, this book just went out of stock.");
+                        }
+
                         // Create borrow record as purchased (use a future due date to satisfy constraint)
                         string insertBorrow = @"
                     INSERT INTO BorrowRecords (UserID, BookID, BorrowDate, DueDate, Status, IsPurchased)
@@ -341,17 +374,6 @@ namespace DataAccessLayer
                             borrowId = Convert.ToInt32(cmd1.ExecuteScalar());
                         }
 
-                        // Decrease stock (book is "used")
-                        string decreaseStock = @"
-                    UPDATE Books SET AvailableQuantity = AvailableQuantity - 1
-                    WHERE BookID = @BookID AND AvailableQuantity > 0";
-
-                        using (SqlCommand cmd2 = new SqlCommand(decreaseStock, conn, transaction))
-                        {
-                            cmd2.Parameters.AddWithValue("@BookID", bookId);
-                            cmd2.ExecuteNonQuery();
-                        }
-
                         // Create purchase payment
                         string insertPayment = @"
                     INSERT INTO Payments (BorrowID, UserID, Amount, PaymentStatus, CreatedDate, PaymentType)
@@ -361,7 +383,7 @@ namespace DataAccessLayer
                         {
                             cmd3.Parameters.AddWithValue("@BorrowID", borrowId);
                             cmd3.Parameters.AddWithValue("@UserID", userId);
-                            cmd3.Parameters.AddWithValue("@Amount", price);
+                            cmd3.Parameters.AddWithValue("@Amount", purchasePrice);
                             cmd3.ExecuteNonQuery();
                         }
 

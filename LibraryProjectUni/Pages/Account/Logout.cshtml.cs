@@ -7,7 +7,6 @@ namespace LibraryProjectUni.Pages.Account
     {
         public IActionResult OnGet()
         {
-            HttpContext.Session.Clear();
             return RedirectToPage("/Account/Login");
         }
 

@@ -10,8 +10,8 @@ namespace LibraryProjectUni.Pages.Librarian
 {
     public class BorrowsModel : ClsBaseController
     {
-        public DataTable Borrows { get; set; }
-        public string Success { get; set; }
+        public DataTable Borrows { get; set; } = new();
+        public string Success { get; set; } = "";
         public int TotalBorrows { get; set; }
         public int TotalOwned { get; set; }
         public int ActiveBorrows { get; set; }

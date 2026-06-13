@@ -8,11 +8,11 @@ namespace LibraryProjectUni.Pages.Librarian
 {
     public class UsersModel : ClsBaseController
     {
-        public DataTable Users { get; set; }
-        public string Error { get; set; }
-        public string Success { get; set; }
+        public DataTable Users { get; set; } = new();
+        public string Error { get; set; } = "";
+        public string Success { get; set; } = "";
 
-        public IActionResult OnGet(string search, string roleFilter)
+        public IActionResult OnGet(string? search, string? roleFilter)
         {
             // Leverages centralized authorization from ClsBaseController
             var authCheck = RequireLibrarian();
@@ -22,7 +22,7 @@ namespace LibraryProjectUni.Pages.Librarian
             return Page();
         }
 
-        private void LoadUsers(string search, string roleFilter)
+        private void LoadUsers(string? search, string? roleFilter)
         {
             try
             {

@@ -8,11 +8,11 @@ namespace LibraryProjectUni.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        [BindProperty] public string FullName { get; set; }
-        [BindProperty] public string Email { get; set; }
-        [BindProperty] public string Password { get; set; }
+        [BindProperty] public string FullName { get; set; } = "";
+        [BindProperty] public string Email { get; set; } = "";
+        [BindProperty] public string Password { get; set; } = "";
 
-        public string Error { get; set; }
+        public string Error { get; set; } = "";
 
         public IActionResult OnGet() => Page();
 

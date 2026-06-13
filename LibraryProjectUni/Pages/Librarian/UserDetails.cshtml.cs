@@ -10,23 +10,24 @@ namespace LibraryProjectUni.Pages.Librarian
 {
     public class UserDetailsModel : ClsBaseController
     {
-        public ClsUser User { get; set; }
-        public string RoleName { get; set; }
+        public ClsUser SelectedUser { get; set; } = new();
+        public string RoleName { get; set; } = "";
         public int TotalBorrowed { get; set; }
         public int ActiveBorrows { get; set; }
         public decimal UnpaidFines { get; set; }
-        public DataTable History { get; set; }
+        public DataTable History { get; set; } = new();
 
         public IActionResult OnGet(int id)
         {
             var check = RequireLibrarian();
             if (check != null) return check;
 
-            User = ClsUser.FindByUserId(id);
-            if (User == null)
+            ClsUser? user = ClsUser.FindByUserId(id);
+            if (user == null)
                 return RedirectToPage("/Librarian/Users");
 
-            RoleName = User.RoleId == 1 ? "Librarian" : "Member";
+            SelectedUser = user;
+            RoleName = SelectedUser.RoleId == 1 ? "Librarian" : "Member";
 
             History = ClsBorrow.GetUserBorrowHistory(id);
             TotalBorrowed = History.Rows.Count;

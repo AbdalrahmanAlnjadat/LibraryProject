@@ -37,7 +37,7 @@ namespace BusinessLogicLayer
             Mode = enMode.Update;
         }
 
-        public static ClsUser FindByUserId(int id)
+        public static ClsUser? FindByUserId(int id)
         {
             DataTable dt = _userDal.GetUserById(id);
             if (dt.Rows.Count == 0) return null;
@@ -46,14 +46,14 @@ namespace BusinessLogicLayer
 
             return new ClsUser(
                 r["UserID"] != DBNull.Value ? Convert.ToInt32(r["UserID"]) : 0,
-                r["FullName"] != DBNull.Value ? r["FullName"].ToString() : "",
-                r["Email"] != DBNull.Value ? r["Email"].ToString() : "",
+                r["FullName"] != DBNull.Value ? r["FullName"].ToString() ?? "" : "",
+                r["Email"] != DBNull.Value ? r["Email"].ToString() ?? "" : "",
                 "",
                 r["RoleID"] != DBNull.Value ? Convert.ToInt32(r["RoleID"]) : 2
             );
         }
 
-        public static ClsUser Login(string email, string password)
+        public static ClsUser? Login(string email, string password)
         {
             DataTable dt = _userDal.LoginUser(email, password);
             if (dt.Rows.Count == 0) return null;
@@ -62,8 +62,8 @@ namespace BusinessLogicLayer
 
             return new ClsUser(
                 r["UserID"] != DBNull.Value ? Convert.ToInt32(r["UserID"]) : 0,
-                r["FullName"] != DBNull.Value ? r["FullName"].ToString() : "",
-                r["Email"] != DBNull.Value ? r["Email"].ToString() : "",
+                r["FullName"] != DBNull.Value ? r["FullName"].ToString() ?? "" : "",
+                r["Email"] != DBNull.Value ? r["Email"].ToString() ?? "" : "",
                 "",
                 r["RoleID"] != DBNull.Value ? Convert.ToInt32(r["RoleID"]) : 2
             );

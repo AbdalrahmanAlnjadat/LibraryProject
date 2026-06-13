@@ -6,15 +6,15 @@ namespace LibraryProjectUni.Pages.Librarian
 {
     public class AddBookModel : ClsBaseController
     {
-        [BindProperty] public string Title { get; set; }
-        [BindProperty] public string Author { get; set; }
-        [BindProperty] public string Category { get; set; }
+        [BindProperty] public string Title { get; set; } = "";
+        [BindProperty] public string Author { get; set; } = "";
+        [BindProperty] public string Category { get; set; } = "";
         [BindProperty] public int Quantity { get; set; }
         [BindProperty] public decimal Price { get; set; }
         [BindProperty] public decimal DailyLateFee { get; set; }
         [BindProperty] public decimal PurchasePrice { get; set; }
 
-        public string Error { get; set; }
+        public string Error { get; set; } = "";
 
         public IActionResult OnGet()
         {

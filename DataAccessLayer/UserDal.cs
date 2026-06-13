@@ -113,23 +113,16 @@ namespace DataAccessLayer
             if (dt.Rows.Count == 0)
                 return new DataTable();
 
-            string storedHash = dt.Rows[0]["Password"].ToString().Trim();
+            string storedHash = dt.Rows[0]["Password"].ToString()?.Trim() ?? "";
+
             bool passwordValid = false;
 
             try
             {
-                if (storedHash.StartsWith("$2"))
-                {
+                
                     passwordValid = BCrypt.Net.BCrypt.Verify(password, storedHash);
-                }
-                else
-                {
-                    if (storedHash == password)
-                    {
-                        passwordValid = true;
-                        UpgradeToBCrypt(Convert.ToInt32(dt.Rows[0]["UserID"]), password);
-                    }
-                }
+                
+                
             }
             catch (Exception)
             {
@@ -143,29 +136,7 @@ namespace DataAccessLayer
             return dt;
         }
 
-        private void UpgradeToBCrypt(int userId, string plainPassword)
-        {
-            string hashed = BCrypt.Net.BCrypt.HashPassword(plainPassword, workFactor: 12);
-
-            using (SqlConnection conn = DbConnection.GetConnection())
-            {
-                string query = "UPDATE Users SET Password = @Password WHERE UserID = @UserID";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@Password", hashed);
-                    cmd.Parameters.AddWithValue("@UserID", userId);
-                    try
-                    {
-                        conn.Open();
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[UpgradeToBCrypt] Silent failure upgrading user password: {ex.Message}");
-                    }
-                }
-            }
-        }
+       
 
         public DataTable GetAllUsers()
         {

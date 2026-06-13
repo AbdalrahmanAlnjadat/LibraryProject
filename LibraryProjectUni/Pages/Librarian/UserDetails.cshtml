@@ -7,13 +7,13 @@
 
 <div class="card">
     <div class="card-header">
-        <h2 class="card-title">👤 @Model.User.FullName</h2>
+        <h2 class="card-title">👤 @Model.SelectedUser.FullName</h2>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div>
             <h3 style="margin-bottom: 16px; color: #1a1a2e;">User Information</h3>
-            <p><strong>Email:</strong> @Model.User.Email</p>
+            <p><strong>Email:</strong> @Model.SelectedUser.Email</p>
             <p><strong>Role:</strong> @Model.RoleName</p>
         </div>
         <div>

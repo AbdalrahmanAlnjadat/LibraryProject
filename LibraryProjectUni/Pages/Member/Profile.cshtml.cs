@@ -8,10 +8,10 @@ namespace LibraryProjectUni.Pages.Member
 {
     public class ProfileModel : ClsBaseController
     {
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string Error { get; set; }
-        public string Success { get; set; }
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Error { get; set; } = "";
+        public string Success { get; set; } = "";
 
         public IActionResult OnGet()
         {
@@ -19,7 +19,7 @@ namespace LibraryProjectUni.Pages.Member
             if (check != null) return check;
 
             // Load current user data
-            ClsUser user = ClsUser.FindByUserId(SessionUserId);
+            ClsUser? user = ClsUser.FindByUserId(SessionUserId);
             if (user != null)
             {
                 FullName = user.FullName ?? "";
@@ -34,7 +34,7 @@ namespace LibraryProjectUni.Pages.Member
             return Page();
         }
 
-        public IActionResult OnPost(string fullName, string email)
+        public IActionResult OnPost(string? fullName, string? email)
         {
             var check = RequireMember();
             if (check != null) return check;
@@ -62,7 +62,7 @@ namespace LibraryProjectUni.Pages.Member
                 return Page();
             }
 
-            ClsUser user = ClsUser.FindByUserId(SessionUserId);
+            ClsUser? user = ClsUser.FindByUserId(SessionUserId);
             if (user == null)
             {
                 Error = "User not found.";

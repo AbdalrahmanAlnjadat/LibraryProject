@@ -82,7 +82,7 @@
                 string phoneValue = "-";
                 if (row.Table.Columns.Contains("Phone") && row["Phone"] != DBNull.Value)
                 {
-                    phoneValue = row["Phone"].ToString();
+                    phoneValue = row["Phone"].ToString() ?? "-";
                 }
 
                 <tr style="border-bottom: 1px solid #f1f5f9;">

@@ -7,21 +7,22 @@ namespace LibraryProjectUni.Pages.Librarian
     public class EditBookModel : ClsBaseController
     {
         [BindProperty]
-        public ClsBook Book { get; set; }
+        public ClsBook Book { get; set; } = new();
 
-        public string Error { get; set; }
-        public string Success { get; set; }
+        public string Error { get; set; } = "";
+        public string Success { get; set; } = "";
 
         public IActionResult OnGet(int id)
         {
             var check = RequireLibrarian();
             if (check != null) return check;
 
-            Book = ClsBook.FindByBookId(id);
+            ClsBook? book = ClsBook.FindByBookId(id);
 
-            if (Book == null)
+            if (book == null)
                 return RedirectToPage("/Librarian/Books");
 
+            Book = book;
             return Page();
         }
 

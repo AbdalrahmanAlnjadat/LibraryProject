@@ -8,12 +8,12 @@ namespace LibraryProjectUni.Pages.Account
     public class LoginModel : ClsBaseController
     {
         [BindProperty]
-        public string Email { get; set; }
+        public string Email { get; set; } = "";
 
         [BindProperty]
-        public string Password { get; set; }
+        public string Password { get; set; } = "";
 
-        public string Error { get; set; }
+        public string Error { get; set; } = "";
 
         public IActionResult OnGet()
         {
@@ -31,7 +31,7 @@ namespace LibraryProjectUni.Pages.Account
                 return Page();
             }
 
-            ClsUser user = ClsUser.Login(Email, Password);
+            ClsUser? user = ClsUser.Login(Email, Password);
 
             if (user == null)
             {

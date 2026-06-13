@@ -15,14 +15,14 @@ namespace LibraryProjectUni.Pages.Shared
         protected bool IsLibrarian => SessionRoleId == RoleLibrarian;
         protected bool IsMember => SessionRoleId == RoleMember;
 
-        protected IActionResult RequireLogin()
+        protected IActionResult? RequireLogin()
         {
             if (!IsLoggedIn)
                 return RedirectToPage("/Account/Login");
             return null;
         }
 
-        protected IActionResult RequireLibrarian()
+        protected IActionResult? RequireLibrarian()
         {
             var check = RequireLogin();
             if (check != null) return check;
@@ -31,7 +31,7 @@ namespace LibraryProjectUni.Pages.Shared
             return null;
         }
 
-        protected IActionResult RequireMember()
+        protected IActionResult? RequireMember()
         {
             var check = RequireLogin();
             if (check != null) return check;

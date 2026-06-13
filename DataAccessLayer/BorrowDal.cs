@@ -9,7 +9,7 @@ namespace DataAccessLayer
         public const decimal RentalFee = 1m;
         public const decimal DepositAmount = 5m;
 
-        public int BorrowBook(int userId, int bookId, int dueDays, decimal fineAmount)
+        public int BorrowBook(int userId, int bookId, int dueDays, decimal rentalFee)
         {
             int newBorrowId = -1;
 
@@ -60,7 +60,7 @@ namespace DataAccessLayer
                         {
                             cmd3.Parameters.AddWithValue("@BorrowID", newBorrowId);
                             cmd3.Parameters.AddWithValue("@UserID", userId);
-                            cmd3.Parameters.AddWithValue("@Amount", BorrowDal.RentalFee);
+                            cmd3.Parameters.AddWithValue("@Amount", rentalFee);
                             cmd3.ExecuteNonQuery();
                         }
 
